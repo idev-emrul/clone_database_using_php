@@ -108,7 +108,7 @@
                     <label for="">Source database</label>
                     <input type="text" class="form-control" name="source_db">
 
-                    <label for="" class="pt-2">Output database</label>
+                    <label for="" class="pt-2">Destination database</label>
                     <input type="text" class="form-control" name="new_db">
 
                     <input type="submit" name="clone_db" class="form-control mt-4 btn btn-primary" value="Save">
