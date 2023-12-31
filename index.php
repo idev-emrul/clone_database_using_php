@@ -17,7 +17,7 @@
         
 
         // ------ server connection --------
-        $conn = new mysqli($servername, $username, $password);
+        $conn = new mysqli($servername, $username, $password,$source_db);
         // ----------- check connectin -----------
         if ($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
@@ -44,7 +44,7 @@
                 // ===== STEP 2 [Collect table name from source database and push that to destination database]===============
                 {
                     // ----- get table list of source database -------
-                    $conn = new mysqli($servername, $username, $password,$source_db);
+                    
                     $sql = "SHOW TABLES";
                     $result = $conn->query($sql);
         
