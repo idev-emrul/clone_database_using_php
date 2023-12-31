@@ -1,11 +1,11 @@
 <?php
-
     function pre($code){
         echo "<pre>";
         print_r($code);
         echo "</pre>";
         exit();
     }
+
     $message = "";
     if(isset($_POST['clone_db']) && !empty($_POST['source_db']) && !empty($_POST['new_db'])){
         // ====== general variables========
@@ -16,21 +16,23 @@
         $new_bd = $_POST['new_db'];
         
 
-        // ------ server connection --------
-        $conn = new mysqli($servername, $username, $password,$source_db);
+        // ======== GENERAL SERVER CONNECTION ======== 
+        $conn = new mysqli($servername, $username, $password);
         // ----------- check connectin -----------
         if ($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
         }
         
+        // ====== DATABASE CONNECTION ===============
         {
             // ----- check source database exist or not----
             $sql = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$source_db'";
-            // Execute query
             $result = $conn->query($sql);
 
             if ($result->num_rows > 0) {
+                
                 // ===== STEP 1 [Create new data for set destination]===============
+                $conn = new mysqli($servername, $username, $password,$source_db);
                 {
                     $sql = "CREATE DATABASE IF NOT EXISTS ".$new_bd." DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci";
                     if ($conn->query($sql) === TRUE) {
@@ -44,29 +46,31 @@
                 // ===== STEP 2 [Collect table name from source database and push that to destination database]===============
                 {
                     // ----- get table list of source database -------
-                    
                     $sql = "SHOW TABLES";
                     $result = $conn->query($sql);
         
                     // ----- transfer table form source database to new database--------
                     if ($result->num_rows > 0) {
+                        $sn=1;
                         while ($row = $result->fetch_assoc()) {
                             //---- set vauriable for source and destination table------
+                            $table=$row["Tables_in_" . $source_db];
                             $new_bd_table=$new_bd.".".$row["Tables_in_" . $source_db];
                             $source_db_table = $source_db.".".$row["Tables_in_" . $source_db];
         
                             // -----create table like source tables with full structure then import data form source table----
-                            $sql = "CREATE TABLE ".$new_bd_table." LIKE ".$source_db_table;
+                            $sql = "CREATE TABLE IF NOT EXISTS ".$new_bd_table." LIKE ".$source_db_table;
                             if ($conn->query($sql) === TRUE) {
                                 $sql_insert = "INSERT INTO ".$new_bd_table." SELECT * FROM ".$source_db_table;
                                 if ($conn->query($sql_insert) === TRUE) {
-                                    $message .= "Table ".$new_bd_table." created and data copied successfully.</br>";
+                                    $message .= $sn.". Table ".$table." created | data copied successfully.</br>";
                                 } else {
-                                    $message .= "Error copying data: " . $conn->error."</br>";
+                                    $message .= $sn.". Table ".$table."  Error copying data: " . $conn->error."</br>";
                                 }
                             } else {
-                                $message .= "Error creating table ".$new_bd_table.": " . $conn->error."</br>";
+                                $message .= "Error creating table ".$table.": " . $conn->error."</br>";
                             }
+                            $sn++;
                         }
                     } else {
                         $message .= "No tables found</br>";
@@ -77,8 +81,6 @@
             }       
         }
         $_POST = array();
-        // header("Location: index.php");
-        // exit;
     }else{
         $message .= "";
     }
@@ -96,12 +98,12 @@
       <form action="index.php" method="post">
           <div class="container">
               <div class="row justify-content-md-center">
-                  <div class="col-md-6 ">
+                  <div class="col-md-8 ">
                     <h1 class="mt-4">Clone Database by PHP </h1>
                     
                         <?php  
                             if(!empty($message)){ ?>
-                            <p style="background:#ff000022; border:1px solid #ff000022;padding:5px;"> <?= $message; ?></p>
+                            <p style="background:#ff000011; border:1px solid #ff000022;padding:5px;"> <?= $message; ?></p>
                                 
                           <?php  }
                         ?>
@@ -111,7 +113,13 @@
                     <label for="" class="pt-2">Destination database</label>
                     <input type="text" class="form-control" name="new_db">
 
-                    <input type="submit" name="clone_db" class="form-control mt-4 btn btn-primary" value="Save">
+                    <div class="d-flex justify-content-between">
+                        <input type="submit" name="clone_db" class="form-control mt-4 btn btn-primary mr-2" value="Clone">
+                        <span>&nbsp; &nbsp;</span>
+                        <a href="http://localhost/clone_database_using_php/index.php" class="form-control mt-4 btn btn-warning ml-2">
+                            <button class="form-control btn btn-warning"> Reset </button>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
