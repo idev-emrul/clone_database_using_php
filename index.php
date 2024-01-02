@@ -13,13 +13,11 @@
               <div class="row justify-content-md-center">
                   <div class="col-md-8 ">
                     <h1 class="mt-4">Clone Database by PHP </h1>
-                    
                         <?php  
                             if(isset($_GET['message']) AND !empty($_GET['message'])){ 
                                 $message =urldecode($_GET['message']);
                                 ?>
                             <p style="background:#ff000011; border:1px solid #ff000022;padding:5px;"> <?= $message; ?></p>
-                                
                           <?php  }
                         ?>
                     <label for="">Source database</label>
