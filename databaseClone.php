@@ -6,6 +6,7 @@ class DatabaseClone {
     private $username = DB_USERNAME;
     private $password = DB_PASSWORD;
         
+    // ===== function for show the code output exit execution=======
     public function pre($code){
         echo "<pre>";
         print_r($code);
